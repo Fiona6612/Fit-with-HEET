@@ -1,0 +1,3494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fit with HEET - Your Smart Fitness Companion</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for Progress Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --card-bg: #252525;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-purple: #A855F7;
+            --accent-teal: #14b8a6;
+            --accent-violet: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Login Screen Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-teal));
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 10px var(--accent-purple); }
+            to { box-shadow: 0 0 20px var(--accent-teal); }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: var(--text-secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--primary-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-violet));
+            color: white;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--card-bg);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        /* Main App Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: var(--secondary-bg);
+            padding: 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 5px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--accent-purple);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-link.locked {
+            position: relative;
+        }
+        
+        .nav-link.locked::after {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 16px;
+            color: var(--warning);
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 30px;
+        }
+        
+        .content-header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .content-header p {
+            color: var(--text-secondary);
+        }
+        
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-teal));
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-primary);
+        }
+        
+        .stat-icon {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 2rem;
+            opacity: 0.2;
+            color: var(--accent-purple);
+        }
+        
+        /* Progress Ring */
+        .progress-ring-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .progress-ring {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+        
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            fill: none;
+            stroke-width: 10;
+        }
+        
+        .progress-ring-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-ring-fill {
+            stroke: url(#gradient);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .progress-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .progress-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Form Styles */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th, .table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .table th {
+            background: var(--primary-bg);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .table tr:hover {
+            background: rgba(168, 85, 247, 0.05);
+        }
+        
+        /* FitNEXUS Card Styles */
+        .fitnexus-card {
+            background: linear-gradient(135deg, var(--secondary-bg), var(--card-bg));
+            border-radius: var(--border-radius);
+            padding: 30px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            position: relative;
+            overflow: hidden;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .fitnexus-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fitnexus-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .fitnexus-card-logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .fitnexus-card-body {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .fitnexus-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .fitnexus-card-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .fitnexus-card-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .fitnexus-card-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* HEET Core Styles */
+        .game-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+        }
+        
+        .game-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .game-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .game-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 200px;
+            perspective: 1000px;
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .flip-card-front {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-violet));
+            color: white;
+        }
+        
+        .flip-card-back {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transform: rotateY(180deg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Pricing Plans */
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+        
+        .plan-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+        
+        .plan-card.featured {
+            border-color: var(--accent-purple);
+            transform: scale(1.05);
+        }
+        
+        .plan-card.featured::before {
+            content: 'POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-purple);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .plan-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .plan-features li i {
+            color: var(--success);
+        }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed rgba(168, 85, 247, 0.3);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent-purple);
+            background: rgba(168, 85, 247, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--accent-purple);
+            margin-bottom: 16px;
+        }
+        
+        .upload-text {
+            margin-bottom: 16px;
+        }
+        
+        .upload-hint {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        /* Contact Info Styles */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--primary-bg);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+        
+        .contact-item:hover {
+            background: rgba(168, 85, 247, 0.1);
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .contact-details h3 {
+            margin-bottom: 4px;
+        }
+        
+        .contact-details p {
+            color: var(--text-secondary);
+        }
+        
+        .work-status {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(20, 184, 166, 0.1));
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        
+        .work-status h3 {
+            margin-bottom: 10px;
+            color: var(--accent-teal);
+        }
+        
+        /* Diet Chart Styles */
+        .diet-chart-container {
+            margin-top: 20px;
+        }
+        
+        .diet-chart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--primary-bg);
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+        
+        .diet-chart-item:hover {
+            background: rgba(168, 85, 247, 0.05);
+        }
+        
+        .diet-chart-info {
+            flex: 1;
+        }
+        
+        .diet-chart-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .diet-chart-date {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .diet-chart-expiry {
+            font-size: 0.8rem;
+            color: var(--warning);
+            margin-left: 10px;
+        }
+        
+        .diet-chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .plans-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .plan-card.featured {
+                transform: scale(1);
+            }
+        }
+        
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-20 {
+            margin-top: 20px;
+        }
+        
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .align-center {
+            align-items: center;
+        }
+        
+        .gap-16 {
+            gap: 16px;
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--accent-purple);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+            max-width: 350px;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .toast-message {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--accent-purple);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Fit with HEET</h1>
+                <p>Your Smart Fitness Companion</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login to FitNEXUS
+                </button>
+                <p class="text-center mt-20" style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Tip: Your password is the part before @ in your email
+                </p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Main App -->
+    <div id="mainApp" class="app-container hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">FH</div>
+                <div class="logo-text">Fit with HEET</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-page="pulse-home">
+                            <i class="fas fa-home"></i>
+                            <span>Pulse Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="smart-budget">
+                            <i class="fas fa-calculator"></i>
+                            <span>Smart Budget</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="calorie-smart">
+                            <i class="fas fa-camera"></i>
+                            <span>Calorie Smart</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="heet-core">
+                            <i class="fas fa-brain"></i>
+                            <span>The HEET Core</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="progress-vault">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Progress Vault</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="diet-plans">
+                            <i class="fas fa-utensils"></i>
+                            <span>Diet Plans</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="contact-heet">
+                            <i class="fas fa-phone"></i>
+                            <span>Contact Heet</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="my-locker">
+                            <i class="fas fa-user"></i>
+                            <span>My Locker</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link locked" data-page="coach-portal">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Coach Portal</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Pulse Home Page -->
+            <div id="pulse-home" class="page-content">
+                <div class="content-header">
+                    <h1>Welcome <span id="username">User</span></h1>
+                    <p>Discipline meets data — Fit with HEET keeps your goals on track.</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Daily Calorie Budget</div>
+                        <div class="stat-value" id="dailyBudget">2000</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Calories Consumed</div>
+                        <div class="stat-value" id="caloriesConsumed">0</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Calories Remaining</div>
+                        <div class="stat-value" id="caloriesRemaining">2000</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-battery-three-quarters"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Calories Burned</div>
+                        <div class="stat-value" id="caloriesBurned">0</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-running"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daily Calorie Progress</h3>
+                    </div>
+                    <div class="progress-ring-container">
+                        <div class="progress-ring">
+                            <svg width="200" height="200">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#A855F7" />
+                                        <stop offset="100%" stop-color="#14b8a6" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="progress-ring-circle progress-ring-bg" cx="100" cy="100" r="90"></circle>
+                                <circle class="progress-ring-circle progress-ring-fill" cx="100" cy="100" r="90" 
+                                        stroke-dasharray="565.48" stroke-dashoffset="565.48"></circle>
+                            </svg>
+                            <div class="progress-text">
+                                <div class="progress-value" id="progressPercent">0%</div>
+                                <div class="progress-label">of daily goal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Upload to Calorie Smart</h3>
+                    </div>
+                    <div class="upload-area" id="quickUpload">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">Click to upload or drag and drop</div>
+                        <div class="upload-hint">PNG, JPG, GIF up to 10MB</div>
+                    </div>
+                    <input type="file" id="quickUploadInput" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Smart Budget Page -->
+            <div id="smart-budget" class="page-content hidden">
+                <div class="content-header">
+                    <h1>Smart Budget</h1>
+                    <p>Set up your personalized calorie and fitness goals</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Personal Information</h3>
+                    </div>
+                    <form id="budgetForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" id="weight" class="form-control" placeholder="Enter your weight" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" id="height" class="form-control" placeholder="Enter your height" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" class="form-control" placeholder="Enter your age" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" class="form-control" required>
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="activity">Activity Level</label>
+                                <select id="activity" class="form-control" required>
+                                    <option value="">Select activity level</option>
+                                    <option value="sedentary">Sedentary (little or no exercise)</option>
+                                    <option value="light">Light (1-3 days/week)</option>
+                                    <option value="moderate">Moderate (3-5 days/week)</option>
+                                    <option value="active">Active (6-7 days/week)</option>
+                                    <option value="very-active">Very Active (twice per day)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="goal">Health Goal</label>
+                                <select id="goal" class="form-control" required>
+                                    <option value="">Select your goal</option>
+                                    <option value="lose-1">Lose 1 kg</option>
+                                    <option value="lose-2">Lose 2 kg</option>
+                                    <option value="lose-3">Lose 3 kg</option>
+                                    <option value="lose-4">Lose 4 kg</option>
+                                    <option value="lose-5">Lose 5 kg</option>
+                                    <option value="gain-1">Gain 1 kg</option>
+                                    <option value="gain-2">Gain 2 kg</option>
+                                    <option value="gain-3">Gain 3 kg</option>
+                                    <option value="gain-4">Gain 4 kg</option>
+                                    <option value="gain-5">Gain 5 kg</option>
+                                    <option value="maintain">Maintain Weight</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i>
+                            Calculate My Budget
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="card" id="budgetResult" style="display: none;">
+                    <div class="card-header">
+                        <h3 class="card-title">Your Daily Calorie Budget</h3>
+                    </div>
+                    <div class="progress-ring-container">
+                        <div class="progress-ring">
+                            <svg width="200" height="200">
+                                <circle class="progress-ring-circle progress-ring-bg" cx="100" cy="100" r="90"></circle>
+                                <circle class="progress-ring-circle progress-ring-fill" cx="100" cy="100" r="90" 
+                                        stroke-dasharray="565.48" stroke-dashoffset="565.48"></circle>
+                            </svg>
+                            <div class="progress-text">
+                                <div class="progress-value" id="budgetCalories">0</div>
+                                <div class="progress-label">calories/day</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-20">
+                        <p id="budgetMessage">Your personalized calorie budget has been calculated!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calorie Smart Page -->
+            <div id="calorie-smart" class="page-content hidden">
+                <div class="content-header">
+                    <h1>Calorie Smart</h1>
+                    <p>AI-powered calorie detection and analysis</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Upload Meal Photo</h3>
+                    </div>
+                    <div class="upload-area" id="mealUpload">
+                        <div class="upload-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="upload-text">Click to upload or take a photo</div>
+                        <div class="upload-hint">Our AI will analyze calories and macros</div>
+                    </div>
+                    <input type="file" id="mealUploadInput" accept="image/*" style="display: none;">
+                    <div class="flex justify-between mt-20">
+                        <button class="btn btn-secondary" id="useCameraBtn">
+                            <i class="fas fa-camera"></i>
+                            Use Camera
+                        </button>
+                        <button class="btn btn-primary" id="analyzeBtn" disabled>
+                            <i class="fas fa-microscope"></i>
+                            Analyze Meal
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card" id="analysisResult" style="display: none;">
+                    <div class="card-header">
+                        <h3 class="card-title">Analysis Results</h3>
+                    </div>
+                    <div id="mealImagePreview" style="text-align: center; margin-bottom: 20px;">
+                        <!-- Image preview will be added here -->
+                    </div>
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Calories</div>
+                            <div class="stat-value" id="totalCalories">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Protein</div>
+                            <div class="stat-value" id="protein">0g</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Carbs</div>
+                            <div class="stat-value" id="carbs">0g</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Fat</div>
+                            <div class="stat-value" id="fat">0g</div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-20">
+                        <button class="btn btn-primary" id="saveMealBtn">
+                            <i class="fas fa-save"></i>
+                            Save to Today's Log
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Today's Meals</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Meal</th>
+                                    <th>Calories</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mealsTable">
+                                <!-- Meals will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- The HEET Core Page -->
+            <div id="heet-core" class="page-content hidden">
+                <div class="content-header">
+                    <h1>The HEET Core</h1>
+                    <p>Interactive educational content to boost your fitness knowledge</p>
+                </div>
+                
+                <div class="game-card" id="sugarMirage">
+                    <div class="game-card-header">
+                        <div class="game-icon">
+                            <i class="fas fa-candy-cane"></i>
+                        </div>
+                        <div>
+                            <h3 class="game-title">Sugar Mirage</h3>
+                            <p>Flip cards to reveal hidden sugar in common foods</p>
+                        </div>
+                    </div>
+                    <div class="flip-card" id="sugarCard">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <h4>Yogurt</h4>
+                                <p>Click to reveal sugar content</p>
+                            </div>
+                            <div class="flip-card-back">
+                                <h4>Yogurt</h4>
+                                <p>Contains 15g of sugar per serving!</p>
+                                <p>That's equivalent to 3.75 teaspoons of sugar.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-20">
+                        <button class="btn btn-secondary" id="nextSugarCard">Next Food</button>
+                    </div>
+                </div>
+                
+                <div class="game-card" id="mythBuster">
+                    <div class="game-card-header">
+                        <div class="game-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 class="game-title">MythBuster Mode</h3>
+                            <p>Swipe through fitness myths vs facts</p>
+                        </div>
+                    </div>
+                    <div class="card" style="background: var(--primary-bg);">
+                        <h4 id="mythQuestion">Myth: You need to do hours of cardio to lose weight</h4>
+                        <div class="flex justify-between mt-20">
+                            <button class="btn btn-secondary" id="mythFact">Fact</button>
+                            <button class="btn btn-secondary" id="mythMyth">Myth</button>
+                        </div>
+                        <div id="mythAnswer" class="mt-20" style="display: none;">
+                            <p>Myth! While cardio is beneficial, combining it with strength training and proper nutrition is more effective for weight loss.</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-20">
+                        <button class="btn btn-secondary" id="nextMyth">Next Myth</button>
+                    </div>
+                </div>
+                
+                <div class="game-card" id="mindFuel">
+                    <div class="game-card-header">
+                        <div class="game-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div>
+                            <h3 class="game-title">MindFuel</h3>
+                            <p>Daily quotes and motivational streaks</p>
+                        </div>
+                    </div>
+                    <div class="card" style="background: var(--primary-bg); text-align: center;">
+                        <i class="fas fa-quote-left" style="color: var(--accent-purple); font-size: 2rem; margin-bottom: 16px;"></i>
+                        <p id="dailyQuote" style="font-size: 1.2rem; font-style: italic; margin-bottom: 16px;">
+                            "The only bad workout is the one that didn't happen."
+                        </p>
+                        <p id="quoteAuthor" style="color: var(--text-secondary);">
+                            - Unknown
+                        </p>
+                        <div class="mt-20">
+                            <p>Current Streak: <span id="motivationalStreak" style="color: var(--accent-teal); font-weight: 600;">3 days</span></p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-20">
+                        <button class="btn btn-secondary" id="nextQuote">Next Quote</button>
+                    </div>
+                </div>
+                
+                <div class="game-card" id="quickQuirk">
+                    <div class="game-card-header">
+                        <div class="game-icon">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <div>
+                            <h3 class="game-title">QuickQuirk Quizzes</h3>
+                            <p>30-second fun health challenges</p>
+                        </div>
+                    </div>
+                    <div class="card" style="background: var(--primary-bg);">
+                        <h4 id="quizQuestion">How many glasses of water should you drink daily?</h4>
+                        <div class="mt-20">
+                            <button class="btn btn-secondary quiz-option" data-answer="4">4 glasses</button>
+                            <button class="btn btn-secondary quiz-option" data-answer="6">6 glasses</button>
+                            <button class="btn btn-secondary quiz-option" data-answer="8">8 glasses</button>
+                            <button class="btn btn-secondary quiz-option" data-answer="10">10 glasses</button>
+                        </div>
+                        <div id="quizAnswer" class="mt-20" style="display: none;">
+                            <p>Correct! You should drink at least 8 glasses (2 liters) of water daily for optimal health.</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-20">
+                        <button class="btn btn-secondary" id="nextQuiz">Next Quiz</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Vault Page -->
+            <div id="progress-vault" class="page-content hidden">
+                <div class="content-header">
+                    <h1>Progress Vault</h1>
+                    <p>Track your fitness journey with detailed analytics</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Weekly Calorie Report</h3>
+                        <button class="btn btn-secondary" id="resetProgressBtn">
+                            <i class="fas fa-redo"></i>
+                            Reset Progress
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Monthly Calorie Intake vs Goal</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Weight Trend</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weightChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Calorie History</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Calories Consumed</th>
+                                    <th>Calories Burned</th>
+                                    <th>Net Calories</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calorieHistory">
+                                <!-- History will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diet Plans Page -->
+            <div id="diet-plans" class="page-content hidden">
+                <div class="content-header">
+                    <h1>Personalized Diet Plans by HEET</h1>
+                    <p>Get customized diet plans tailored to your fitness goals</p>
+                </div>
+                
+                <div class="plans-container">
+                    <div class="plan-card">
+                        <h3 class="plan-name">1 Month Plan</h3>
+                        <div class="plan-price">₹3,500<span>/month</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Personalized meal plans</li>
+                            <li><i class="fas fa-check"></i> Weekly adjustments</li>
+                            <li><i class="fas fa-check"></i> Nutrition guidance</li>
+                            <li><i class="fas fa-check"></i> Recipe suggestions</li>
+                            <li><i class="fas fa-check"></i> Email support</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%;">Choose Plan</button>
+                    </div>
+                    
+                    <div class="plan-card featured">
+                        <h3 class="plan-name">2 Months Plan</h3>
+                        <div class="plan-price">₹5,500<span>/2 months</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Everything in 1 Month Plan</li>
+                            <li><i class="fas fa-check"></i> Bi-weekly adjustments</li>
+                            <li><i class="fas fa-check"></i> Priority email support</li>
+                            <li><i class="fas fa-check"></i> Progress tracking</li>
+                            <li><i class="fas fa-check"></i> Save ₹1,500</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%;">Choose Plan</button>
+                    </div>
+                    
+                    <div class="plan-card">
+                        <h3 class="plan-name">3 Months Plan</h3>
+                        <div class="plan-price">₹7,500<span>/3 months</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Everything in 2 Months Plan</li>
+                            <li><i class="fas fa-check"></i> Weekly adjustments</li>
+                            <li><i class="fas fa-check"></i> Video call consultation</li>
+                            <li><i class="fas fa-check"></i> Advanced analytics</li>
+                            <li><i class="fas fa-check"></i> Save ₹3,000</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%;">Choose Plan</button>
+                    </div>
+                </div>
+                
+                <div class="card mt-20">
+                    <div class="card-header">
+                        <h3 class="card-title">Upload Your Diet Chart</h3>
+                    </div>
+                    <div class="upload-area" id="dietChartUpload">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="upload-text">Click to upload your diet chart</div>
+                        <div class="upload-hint">PDF, JPG, PNG up to 10MB</div>
+                    </div>
+                    <input type="file" id="dietChartInput" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                    
+                    <div class="diet-chart-container" id="dietChartContainer">
+                        <!-- Diet charts will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Heet Page -->
+            <div id="contact-heet" class="page-content hidden">
+                <div class="content-header">
+                    <h1>Contact Heet</h1>
+                    <p>Get in touch with us for personalized fitness guidance</p>
+                </div>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Phone</h3>
+                            <p>9899440959</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Email</h3>
+                            <p>heetsachdeva37@gmail.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="work-status">
+                        <h3><i class="fas fa-home"></i> Work From Home</h3>
+                        <p>We're available for online consultations and virtual coaching sessions</p>
+                    </div>
+                </div>
+                
+                <div class="card mt-20">
+                    <div class="card-header">
+                        <h3 class="card-title">Send us a Message</h3>
+                    </div>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="contactName">Your Name</label>
+                            <input type="text" id="contactName" class="form-control" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Your Email</label>
+                            <input type="email" id="contactEmail" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactMessage">Message</label>
+                            <textarea id="contactMessage" class="form-control" rows="5" placeholder="Enter your message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- My Locker Page -->
+            <div id="my-locker" class="page-content hidden">
+                <div class="content-header">
+                    <h1>My Locker</h1>
+                    <p>Manage your personal details and generate your FitNEXUS Card</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Personal Information</h3>
+                    </div>
+                    <form id="lockerForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lockerName">Full Name</label>
+                                <input type="text" id="lockerName" class="form-control" placeholder="Enter your full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lockerEmail">Email</label>
+                                <input type="email" id="lockerEmail" class="form-control" placeholder="Enter your email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lockerAge">Age</label>
+                                <input type="number" id="lockerAge" class="form-control" placeholder="Enter your age" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lockerGender">Gender</label>
+                                <select id="lockerGender" class="form-control" required>
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lockerWeight">Weight (kg)</label>
+                                <input type="number" id="lockerWeight" class="form-control" placeholder="Enter your weight" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lockerHeight">Height (cm)</label>
+                                <input type="number" id="lockerHeight" class="form-control" placeholder="Enter your height" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lockerBloodGroup">Blood Group</label>
+                                <select id="lockerBloodGroup" class="form-control" required>
+                                    <option value="">Select blood group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="lockerAllergies">Allergies</label>
+                                <input type="text" id="lockerAllergies" class="form-control" placeholder="Enter any allergies">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lockerActivity">Activity Level</label>
+                                <select id="lockerActivity" class="form-control" required>
+                                    <option value="">Select activity level</option>
+                                    <option value="sedentary">Sedentary</option>
+                                    <option value="light">Light</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="active">Active</option>
+                                    <option value="very-active">Very Active</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="lockerGoal">Health Goal</label>
+                                <select id="lockerGoal" class="form-control" required>
+                                    <option value="">Select your goal</option>
+                                    <option value="lose-weight">Lose Weight</option>
+                                    <option value="gain-weight">Gain Weight</option>
+                                    <option value="maintain">Maintain Weight</option>
+                                    <option value="build-muscle">Build Muscle</option>
+                                    <option value="improve-fitness">Improve Fitness</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Information
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">FitNEXUS Card</h3>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Generate your digital health identity card</p>
+                    <button class="btn btn-primary" id="generateCardBtn">
+                        <i class="fas fa-id-card"></i>
+                        Generate FitNEXUS Card
+                    </button>
+                    
+                    <div id="fitnexusCardContainer" class="mt-20" style="display: none;">
+                        <div class="fitnexus-card">
+                            <div class="fitnexus-card-header">
+                                <div class="fitnexus-card-logo">FitNEXUS</div>
+                                <div style="color: var(--text-secondary); font-size: 0.9rem;">Health ID</div>
+                            </div>
+                            <div class="fitnexus-card-body">
+                                <div class="fitnexus-card-grid">
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Name</div>
+                                        <div class="fitnexus-card-value" id="cardName">-</div>
+                                    </div>
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Age</div>
+                                        <div class="fitnexus-card-value" id="cardAge">-</div>
+                                    </div>
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Gender</div>
+                                        <div class="fitnexus-card-value" id="cardGender">-</div>
+                                    </div>
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Blood Group</div>
+                                        <div class="fitnexus-card-value" id="cardBloodGroup">-</div>
+                                    </div>
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Weight</div>
+                                        <div class="fitnexus-card-value" id="cardWeight">-</div>
+                                    </div>
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Height</div>
+                                        <div class="fitnexus-card-value" id="cardHeight">-</div>
+                                    </div>
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Allergies</div>
+                                        <div class="fitnexus-card-value" id="cardAllergies">-</div>
+                                    </div>
+                                    <div class="fitnexus-card-item">
+                                        <div class="fitnexus-card-label">Activity Level</div>
+                                        <div class="fitnexus-card-value" id="cardActivity">-</div>
+                                    </div>
+                                </div>
+                                <div class="mt-20">
+                                    <div class="fitnexus-card-label">Health Goal</div>
+                                    <div class="fitnexus-card-value" id="cardGoal">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-20">
+                            <button class="btn btn-primary" id="downloadCardBtn">
+                                <i class="fas fa-download"></i>
+                                Download as PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Coach Portal Page -->
+            <div id="coach-portal" class="page-content hidden">
+                <div class="content-header">
+                    <h1>Coach Portal</h1>
+                    <p>Access and monitor your clients' progress</p>
+                </div>
+                
+                <div class="card" id="coachLoginCard">
+                    <div class="card-header">
+                        <h3 class="card-title">Coach Authentication</h3>
+                    </div>
+                    <form id="coachLoginForm">
+                        <div class="form-group">
+                            <label for="coachPassword">Enter Coach Password</label>
+                            <input type="password" id="coachPassword" class="form-control" placeholder="Enter password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-unlock"></i>
+                            Unlock Portal
+                        </button>
+                        <p class="text-center mt-20" style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Only authorized coaches can access this portal
+                        </p>
+                    </form>
+                </div>
+                
+                <div id="clientData" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Client Login</h3>
+                        </div>
+                        <form id="clientLoginForm">
+                            <div class="form-group">
+                                <label for="clientEmail">Client Email</label>
+                                <input type="email" id="clientEmail" class="form-control" placeholder="Enter client email" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Access Client Data
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Client Information</h3>
+                            <button class="btn btn-danger" id="resetClientBtn">
+                                <i class="fas fa-redo"></i>
+                                Reset Client Progress
+                            </button>
+                        </div>
+                        <div class="dashboard-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Client Name</div>
+                                <div class="stat-value" id="clientName">-</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Daily Calorie Budget</div>
+                                <div class="stat-value" id="clientBudget">-</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Current Weight</div>
+                                <div class="stat-value" id="clientWeight">-</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Health Goal</div>
+                                <div class="stat-value" id="clientGoal">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Client Calorie Logs</h3>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Meal</th>
+                                        <th>Calories</th>
+                                        <th>Protein</th>
+                                        <th>Carbs</th>
+                                        <th>Fat</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clientMealsTable">
+                                    <!-- Client meals will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Client Progress Charts</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="clientProgressChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Client FitNEXUS Card</h3>
+                        </div>
+                        <div id="clientFitnexusCard">
+                            <!-- Client card will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="toast-title" id="toastTitle">Notification</div>
+        <div class="toast-message" id="toastMessage">Message here</div>
+    </div>
+    
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Modal Title</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                Modal content here
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // App State
+        const app = {
+            currentUser: null,
+            userData: {},
+            pages: {},
+            charts: {},
+            sugarFoods: [
+                { name: "Yogurt", sugar: "15g", description: "That's equivalent to 3.75 teaspoons of sugar." },
+                { name: "Granola Bar", sugar: "12g", description: "That's equivalent to 3 teaspoons of sugar." },
+                { name: "Sports Drink", sugar: "34g", description: "That's equivalent to 8.5 teaspoons of sugar." },
+                { name: "Smoothie", sugar: "45g", description: "That's equivalent to 11.25 teaspoons of sugar." },
+                { name: "Cereal", sugar: "20g", description: "That's equivalent to 5 teaspoons of sugar." }
+            ],
+            currentSugarIndex: 0,
+            myths: [
+                { 
+                    question: "You need to do hours of cardio to lose weight", 
+                    answer: "myth", 
+                    explanation: "Myth! While cardio is beneficial, combining it with strength training and proper nutrition is more effective for weight loss." 
+                },
+                { 
+                    question: "Carbs make you gain weight", 
+                    answer: "myth", 
+                    explanation: "Myth! Carbs are not inherently fattening. It's the total calorie intake that matters for weight management." 
+                },
+                { 
+                    question: "You should stretch before exercise", 
+                    answer: "fact", 
+                    explanation: "Fact! Dynamic stretching before exercise helps prepare your muscles and can improve performance." 
+                },
+                { 
+                    question: "Muscle weighs more than fat", 
+                    answer: "myth", 
+                    explanation: "Myth! A pound of muscle and a pound of fat weigh the same, but muscle is denser and takes up less space." 
+                },
+                { 
+                    question: "You should drink 8 glasses of water daily", 
+                    answer: "fact", 
+                    explanation: "Fact! The general recommendation is about 8 glasses (2 liters) of water daily for optimal health." 
+                }
+            ],
+            currentMythIndex: 0,
+            quotes: [
+                { text: "The only bad workout is the one that didn't happen.", author: "Unknown" },
+                { text: "Take care of your body. It's the only place you have to live.", author: "Jim Rohn" },
+                { text: "Fitness is not about being better than someone else. It's about being better than you used to be.", author: "Khloe Kardashian" },
+                { text: "A one hour workout is 4% of your day. No excuses.", author: "Unknown" },
+                { text: "The body achieves what the mind believes.", author: "Napoleon Hill" }
+            ],
+            currentQuoteIndex: 0,
+            quizzes: [
+                { 
+                    question: "How many glasses of water should you drink daily?", 
+                    options: ["4", "6", "8", "10"], 
+                    correct: "8", 
+                    explanation: "Correct! You should drink at least 8 glasses (2 liters) of water daily for optimal health." 
+                },
+                { 
+                    question: "How many minutes of moderate exercise should adults get per week?", 
+                    options: ["75", "100", "150", "200"], 
+                    correct: "150", 
+                    explanation: "Correct! Adults should aim for at least 150 minutes of moderate-intensity aerobic activity per week." 
+                },
+                { 
+                    question: "Which macronutrient provides the most calories per gram?", 
+                    options: ["Protein", "Carbohydrates", "Fat", "All are equal"], 
+                    correct: "Fat", 
+                    explanation: "Correct! Fat provides 9 calories per gram, while protein and carbohydrates provide 4 calories per gram." 
+                },
+                { 
+                    question: "What is the recommended maximum daily sodium intake?", 
+                    options: ["1500mg", "2300mg", "3000mg", "4000mg"], 
+                    correct: "2300mg", 
+                    explanation: "Correct! The recommended maximum daily sodium intake is 2300mg, which is about 1 teaspoon of salt." 
+                },
+                { 
+                    question: "How many hours of sleep should adults get per night?", 
+                    options: ["5-6", "6-7", "7-9", "9-10"], 
+                    correct: "7-9", 
+                    explanation: "Correct! Adults should aim for 7-9 hours of quality sleep per night for optimal health." 
+                }
+            ],
+            currentQuizIndex: 0,
+            coachAuthenticated: false,
+            dietCharts: []
+        };
+        
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            checkDietChartExpiry();
+        });
+        
+        function initializeApp() {
+            // Check if user is logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                app.currentUser = savedUser;
+                loadUserData();
+                showMainApp();
+            }
+            
+            // Initialize page references
+            const pageElements = document.querySelectorAll('.page-content');
+            pageElements.forEach(page => {
+                app.pages[page.id] = page;
+            });
+        }
+        
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Navigation
+            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+                link.addEventListener('click', handleNavigation);
+            });
+            
+            // Smart Budget form
+            document.getElementById('budgetForm').addEventListener('submit', handleBudgetCalculation);
+            
+            // Calorie Smart upload
+            document.getElementById('mealUpload').addEventListener('click', () => {
+                document.getElementById('mealUploadInput').click();
+            });
+            
+            document.getElementById('mealUploadInput').addEventListener('change', handleMealUpload);
+            
+            document.getElementById('useCameraBtn').addEventListener('click', handleCameraCapture);
+            document.getElementById('analyzeBtn').addEventListener('click', analyzeMeal);
+            document.getElementById('saveMealBtn').addEventListener('click', saveMeal);
+            
+            // Quick upload on dashboard
+            document.getElementById('quickUpload').addEventListener('click', () => {
+                document.getElementById('quickUploadInput').click();
+            });
+            
+            document.getElementById('quickUploadInput').addEventListener('change', handleQuickUpload);
+            
+            // HEET Core interactions
+            document.getElementById('sugarCard').addEventListener('click', function() {
+                this.classList.toggle('flipped');
+            });
+            
+            document.getElementById('nextSugarCard').addEventListener('click', showNextSugarCard);
+            
+            document.getElementById('mythFact').addEventListener('click', () => checkMythAnswer('fact'));
+            document.getElementById('mythMyth').addEventListener('click', () => checkMythAnswer('myth'));
+            document.getElementById('nextMyth').addEventListener('click', showNextMyth);
+            
+            document.getElementById('nextQuote').addEventListener('click', showNextQuote);
+            
+            document.querySelectorAll('.quiz-option').forEach(button => {
+                button.addEventListener('click', function() {
+                    checkQuizAnswer(this.dataset.answer);
+                });
+            });
+            
+            document.getElementById('nextQuiz').addEventListener('click', showNextQuiz);
+            
+            // Progress Vault
+            document.getElementById('resetProgressBtn').addEventListener('click', resetProgress);
+            
+            // Diet Plans
+            document.getElementById('dietChartUpload').addEventListener('click', () => {
+                document.getElementById('dietChartInput').click();
+            });
+            
+            document.getElementById('dietChartInput').addEventListener('change', handleDietChartUpload);
+            
+            // Contact Form
+            document.getElementById('contactForm').addEventListener('submit', handleContactForm);
+            
+            // My Locker
+            document.getElementById('lockerForm').addEventListener('submit', saveLockerInfo);
+            document.getElementById('generateCardBtn').addEventListener('click', generateFitNexusCard);
+            document.getElementById('downloadCardBtn').addEventListener('click', downloadFitNexusCard);
+            
+            // Coach Portal
+            document.getElementById('coachLoginForm').addEventListener('submit', handleCoachLogin);
+            document.getElementById('clientLoginForm').addEventListener('submit', handleClientLogin);
+            document.getElementById('resetClientBtn').addEventListener('click', resetClientProgress);
+            
+            // Modal close
+            document.getElementById('modalClose').addEventListener('click', closeModal);
+            document.getElementById('modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+        
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Extract username from email (part before @)
+            const username = email.split('@')[0];
+            
+            // Check if password matches username (as per requirement)
+            if (password !== username) {
+                showToast('Login Failed', 'Invalid credentials. Try using the part before @ as your password.', 'error');
+                return;
+            }
+            
+            // Save current user
+            app.currentUser = email;
+            localStorage.setItem('currentUser', email);
+            
+            // Load user data or create new user data
+            loadUserData();
+            
+            // Show main app
+            showMainApp();
+            
+            showToast('Login Successful', `Welcome back, ${username}!`, 'success');
+        }
+        
+        function handleLogout() {
+            app.currentUser = null;
+            localStorage.removeItem('currentUser');
+            
+            // Show login screen
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            
+            showToast('Logged Out', 'You have been successfully logged out.', 'info');
+        }
+        
+        function showMainApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Update username display
+            const username = app.currentUser.split('@')[0];
+            document.getElementById('username').textContent = username;
+            
+            // Show default page
+            showPage('pulse-home');
+            
+            // Update dashboard stats
+            updateDashboardStats();
+        }
+        
+        function handleNavigation(e) {
+            e.preventDefault();
+            const pageId = e.currentTarget.dataset.page;
+            
+            // Check if trying to access Coach Portal
+            if (pageId === 'coach-portal' && !app.coachAuthenticated) {
+                showToast('Access Denied', 'Please enter the coach password to access this portal.', 'warning');
+                showPage('coach-portal');
+                return;
+            }
+            
+            showPage(pageId);
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            e.currentTarget.classList.add('active');
+        }
+        
+        function showPage(pageId) {
+            // Hide all pages
+            Object.values(app.pages).forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show selected page
+            if (app.pages[pageId]) {
+                app.pages[pageId].classList.remove('hidden');
+                
+                // Initialize page-specific features
+                if (pageId === 'progress-vault') {
+                    initializeProgressCharts();
+                } else if (pageId === 'my-locker') {
+                    loadLockerInfo();
+                } else if (pageId === 'diet-plans') {
+                    loadDietCharts();
+                }
+            }
+        }
+        
+        function loadUserData() {
+            // Get user data from localStorage
+            const userData = localStorage.getItem(`userData_${app.currentUser}`);
+            
+            if (userData) {
+                app.userData = JSON.parse(userData);
+            } else {
+                // Initialize with default data
+                app.userData = {
+                    email: app.currentUser,
+                    name: app.currentUser.split('@')[0],
+                    weight: 70,
+                    height: 170,
+                    age: 30,
+                    gender: 'male',
+                    activity: 'moderate',
+                    goal: 'maintain',
+                    dailyBudget: 2000,
+                    meals: [],
+                    calorieHistory: [],
+                    weightHistory: [],
+                    bloodGroup: 'O+',
+                    allergies: 'None',
+                    motivationalStreak: 3
+                };
+                saveUserData();
+            }
+        }
+        
+        function saveUserData() {
+            localStorage.setItem(`userData_${app.currentUser}`, JSON.stringify(app.userData));
+        }
+        
+        function updateDashboardStats() {
+            // Calculate today's consumed calories
+            const today = new Date().toDateString();
+            const todayMeals = app.userData.meals.filter(meal => 
+                new Date(meal.date).toDateString() === today
+            );
+            
+            const caloriesConsumed = todayMeals.reduce((total, meal) => total + meal.calories, 0);
+            const caloriesRemaining = Math.max(0, app.userData.dailyBudget - caloriesConsumed);
+            
+            // Update dashboard
+            document.getElementById('dailyBudget').textContent = app.userData.dailyBudget;
+            document.getElementById('caloriesConsumed').textContent = caloriesConsumed;
+            document.getElementById('caloriesRemaining').textContent = caloriesRemaining;
+            
+            // Update progress ring
+            const progressPercent = Math.min(100, Math.round((caloriesConsumed / app.userData.dailyBudget) * 100));
+            updateProgressRing(progressPercent);
+        }
+        
+        function updateProgressRing(percent) {
+            const circle = document.querySelector('.progress-ring-fill');
+            const radius = 90;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (percent / 100) * circumference;
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = offset;
+            
+            document.getElementById('progressPercent').textContent = `${percent}%`;
+        }
+        
+        function handleBudgetCalculation(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            const activity = document.getElementById('activity').value;
+            const goal = document.getElementById('goal').value;
+            
+            // Save user data
+            app.userData.weight = weight;
+            app.userData.height = height;
+            app.userData.age = age;
+            app.userData.gender = gender;
+            app.userData.activity = activity;
+            app.userData.goal = goal;
+            
+            // Calculate BMR (Basal Metabolic Rate)
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            
+            // Calculate TDEE (Total Daily Energy Expenditure)
+            let activityMultiplier;
+            switch (activity) {
+                case 'sedentary':
+                    activityMultiplier = 1.2;
+                    break;
+                case 'light':
+                    activityMultiplier = 1.375;
+                    break;
+                case 'moderate':
+                    activityMultiplier = 1.55;
+                    break;
+                case 'active':
+                    activityMultiplier = 1.725;
+                    break;
+                case 'very-active':
+                    activityMultiplier = 1.9;
+                    break;
+                default:
+                    activityMultiplier = 1.55;
+            }
+            
+            let tdee = bmr * activityMultiplier;
+            
+            // Adjust for goal
+            if (goal.startsWith('lose')) {
+                const kgToLose = parseInt(goal.split('-')[1]);
+                tdee -= (kgToLose * 7700) / 30; // 7700 calories = 1 kg, spread over 30 days
+            } else if (goal.startsWith('gain')) {
+                const kgToGain = parseInt(goal.split('-')[1]);
+                tdee += (kgToGain * 7700) / 30;
+            }
+            
+            // Round to nearest 50
+            app.userData.dailyBudget = Math.round(tdee / 50) * 50;
+            
+            // Save user data
+            saveUserData();
+            
+            // Show results
+            document.getElementById('budgetResult').style.display = 'block';
+            document.getElementById('budgetCalories').textContent = app.userData.dailyBudget;
+            
+            // Update progress ring
+            updateProgressRing(0);
+            
+            // Update message based on goal
+            let message;
+            if (goal.startsWith('lose')) {
+                message = `Your personalized calorie budget for weight loss is ${app.userData.dailyBudget} calories/day.`;
+            } else if (goal.startsWith('gain')) {
+                message = `Your personalized calorie budget for weight gain is ${app.userData.dailyBudget} calories/day.`;
+            } else {
+                message = `Your personalized calorie budget for maintenance is ${app.userData.dailyBudget} calories/day.`;
+            }
+            
+            document.getElementById('budgetMessage').textContent = message;
+            
+            // Update dashboard
+            updateDashboardStats();
+            
+            showToast('Budget Calculated', 'Your daily calorie budget has been updated!', 'success');
+        }
+        
+        function handleMealUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                displayMealImage(file);
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+        
+        function handleQuickUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Navigate to Calorie Smart page
+                document.querySelector('[data-page="calorie-smart"]').click();
+                
+                // Display the image
+                displayMealImage(file);
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+        
+        function displayMealImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '300px';
+                img.style.borderRadius = '8px';
+                
+                const preview = document.getElementById('mealImagePreview');
+                preview.innerHTML = '';
+                preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function handleCameraCapture() {
+            // In a real app, this would access the device camera
+            // For demo purposes, we'll just trigger the file input
+            document.getElementById('mealUploadInput').click();
+        }
+        
+        function analyzeMeal() {
+            // Show loading state
+            document.getElementById('analyzeBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            document.getElementById('analyzeBtn').disabled = true;
+            
+            // Simulate AI analysis
+            setTimeout(() => {
+                // Generate random calorie data for demo
+                const calories = Math.floor(Math.random() * 500) + 200;
+                const protein = Math.floor(Math.random() * 30) + 10;
+                const carbs = Math.floor(Math.random() * 50) + 20;
+                const fat = Math.floor(Math.random() * 20) + 5;
+                
+                // Update UI
+                document.getElementById('totalCalories').textContent = calories;
+                document.getElementById('protein').textContent = `${protein}g`;
+                document.getElementById('carbs').textContent = `${carbs}g`;
+                document.getElementById('fat').textContent = `${fat}g`;
+                
+                // Show results
+                document.getElementById('analysisResult').style.display = 'block';
+                
+                // Reset button
+                document.getElementById('analyzeBtn').innerHTML = '<i class="fas fa-microscope"></i> Analyze Meal';
+                document.getElementById('analyzeBtn').disabled = false;
+                
+                showToast('Analysis Complete', 'Your meal has been analyzed successfully!', 'success');
+            }, 2000);
+        }
+        
+        function saveMeal() {
+            // Get meal data
+            const calories = parseInt(document.getElementById('totalCalories').textContent);
+            const protein = parseInt(document.getElementById('protein').textContent);
+            const carbs = parseInt(document.getElementById('carbs').textContent);
+            const fat = parseInt(document.getElementById('fat').textContent);
+            
+            // Create meal object
+            const meal = {
+                date: new Date().toISOString(),
+                calories: calories,
+                protein: protein,
+                carbs: carbs,
+                fat: fat,
+                image: document.querySelector('#mealImagePreview img').src
+            };
+            
+            // Add to user data
+            app.userData.meals.push(meal);
+            
+            // Save user data
+            saveUserData();
+            
+            // Update UI
+            updateMealsTable();
+            updateDashboardStats();
+            
+            // Reset form
+            document.getElementById('analysisResult').style.display = 'none';
+            document.getElementById('mealImagePreview').innerHTML = '';
+            document.getElementById('analyzeBtn').disabled = true;
+            
+            showToast('Meal Saved', 'Your meal has been added to today\'s log!', 'success');
+        }
+        
+        function updateMealsTable() {
+            const tableBody = document.getElementById('mealsTable');
+            tableBody.innerHTML = '';
+            
+            // Get today's meals
+            const today = new Date().toDateString();
+            const todayMeals = app.userData.meals.filter(meal => 
+                new Date(meal.date).toDateString() === today
+            );
+            
+            // Add meals to table
+            todayMeals.forEach((meal, index) => {
+                const row = document.createElement('tr');
+                const time = new Date(meal.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                row.innerHTML = `
+                    <td>${time}</td>
+                    <td>Meal ${index + 1}</td>
+                    <td>${meal.calories}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteMeal(${app.userData.meals.indexOf(meal)})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // If no meals today
+            if (todayMeals.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No meals logged today</td></tr>';
+            }
+        }
+        
+        function deleteMeal(index) {
+            // Remove meal from array
+            app.userData.meals.splice(index, 1);
+            
+            // Save user data
+            saveUserData();
+            
+            // Update UI
+            updateMealsTable();
+            updateDashboardStats();
+            
+            showToast('Meal Deleted', 'The meal has been removed from your log.', 'info');
+        }
+        
+        function showNextSugarCard() {
+            // Reset flip
+            document.getElementById('sugarCard').classList.remove('flipped');
+            
+            // Update to next food
+            app.currentSugarIndex = (app.currentSugarIndex + 1) % app.sugarFoods.length;
+            const food = app.sugarFoods[app.currentSugarIndex];
+            
+            // Update card content
+            setTimeout(() => {
+                document.querySelector('.flip-card-front h4').textContent = food.name;
+                document.querySelector('.flip-card-front p').textContent = 'Click to reveal sugar content';
+                
+                document.querySelector('.flip-card-back h4').textContent = food.name;
+                document.querySelector('.flip-card-back p').textContent = `Contains ${food.sugar} of sugar per serving!`;
+                document.querySelector('.flip-card-back p:last-child').textContent = food.description;
+            }, 300);
+        }
+        
+        function checkMythAnswer(answer) {
+            const myth = app.myths[app.currentMythIndex];
+            const isCorrect = answer === myth.answer;
+            
+            // Show answer
+            document.getElementById('mythAnswer').style.display = 'block';
+            document.getElementById('mythAnswer').innerHTML = `
+                <p style="color: ${isCorrect ? 'var(--success)' : 'var(--danger)'}">
+                    ${isCorrect ? 'Correct!' : 'Incorrect!'}
+                </p>
+                <p>${myth.explanation}</p>
+            `;
+            
+            // Disable buttons
+            document.getElementById('mythFact').disabled = true;
+            document.getElementById('mythMyth').disabled = true;
+        }
+        
+        function showNextMyth() {
+            // Reset
+            document.getElementById('mythAnswer').style.display = 'none';
+            document.getElementById('mythFact').disabled = false;
+            document.getElementById('mythMyth').disabled = false;
+            
+            // Update to next myth
+            app.currentMythIndex = (app.currentMythIndex + 1) % app.myths.length;
+            const myth = app.myths[app.currentMythIndex];
+            
+            // Update question
+            document.getElementById('mythQuestion').textContent = `Myth: ${myth.question}`;
+        }
+        
+        function showNextQuote() {
+            // Update to next quote
+            app.currentQuoteIndex = (app.currentQuoteIndex + 1) % app.quotes.length;
+            const quote = app.quotes[app.currentQuoteIndex];
+            
+            // Update quote
+            document.getElementById('dailyQuote').textContent = `"${quote.text}"`;
+            document.getElementById('quoteAuthor').textContent = `- ${quote.author}`;
+            
+            // Increment streak (in a real app, this would be based on daily visits)
+            app.userData.motivationalStreak = (app.userData.motivationalStreak || 0) + 1;
+            document.getElementById('motivationalStreak').textContent = `${app.userData.motivationalStreak} days`;
+            
+            // Save user data
+            saveUserData();
+        }
+        
+        function checkQuizAnswer(answer) {
+            const quiz = app.quizzes[app.currentQuizIndex];
+            const isCorrect = answer === quiz.correct;
+            
+            // Show answer
+            document.getElementById('quizAnswer').style.display = 'block';
+            document.getElementById('quizAnswer').innerHTML = `
+                <p style="color: ${isCorrect ? 'var(--success)' : 'var(--danger)'}">
+                    ${isCorrect ? 'Correct!' : 'Incorrect!'}
+                </p>
+                <p>${quiz.explanation}</p>
+            `;
+            
+            // Disable buttons
+            document.querySelectorAll('.quiz-option').forEach(button => {
+                button.disabled = true;
+            });
+        }
+        
+        function showNextQuiz() {
+            // Reset
+            document.getElementById('quizAnswer').style.display = 'none';
+            
+            // Update to next quiz
+            app.currentQuizIndex = (app.currentQuizIndex + 1) % app.quizzes.length;
+            const quiz = app.quizzes[app.currentQuizIndex];
+            
+            // Update question
+            document.getElementById('quizQuestion').textContent = quiz.question;
+            
+            // Update options
+            const optionButtons = document.querySelectorAll('.quiz-option');
+            quiz.options.forEach((option, index) => {
+                optionButtons[index].textContent = option;
+                optionButtons[index].dataset.answer = option;
+                optionButtons[index].disabled = false;
+            });
+        }
+        
+        function initializeProgressCharts() {
+            // Weekly Chart
+            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+            
+            // Generate sample data for the last 7 days
+            const labels = [];
+            const data = [];
+            const today = new Date();
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                
+                // Generate sample data (in a real app, this would come from user data)
+                data.push(Math.floor(Math.random() * 500) + 1500);
+            }
+            
+            if (app.charts.weekly) {
+                app.charts.weekly.destroy();
+            }
+            
+            app.charts.weekly = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Calories Consumed',
+                        data: data,
+                        backgroundColor: 'rgba(168, 85, 247, 0.5)',
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Daily Goal',
+                        data: Array(7).fill(app.userData.dailyBudget),
+                        type: 'line',
+                        borderColor: 'rgba(20, 184, 166, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Monthly Chart
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            
+            // Generate sample data for the last 30 days
+            const monthlyLabels = [];
+            const monthlyData = [];
+            const monthlyGoal = [];
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                monthlyLabels.push(date.getDate());
+                
+                // Generate sample data
+                monthlyData.push(Math.floor(Math.random() * 500) + 1500);
+                monthlyGoal.push(app.userData.dailyBudget);
+            }
+            
+            if (app.charts.monthly) {
+                app.charts.monthly.destroy();
+            }
+            
+            app.charts.monthly = new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: monthlyLabels,
+                    datasets: [{
+                        label: 'Calories Consumed',
+                        data: monthlyData,
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Daily Goal',
+                        data: monthlyGoal,
+                        borderColor: 'rgba(20, 184, 166, 1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Weight Chart
+            const weightCtx = document.getElementById('weightChart').getContext('2d');
+            
+            // Generate sample weight data for the last 30 days
+            const weightLabels = [];
+            const weightData = [];
+            let currentWeight = app.userData.weight;
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                weightLabels.push(date.getDate());
+                
+                // Simulate weight change based on goal
+                if (app.userData.goal.startsWith('lose')) {
+                    currentWeight -= Math.random() * 0.2;
+                } else if (app.userData.goal.startsWith('gain')) {
+                    currentWeight += Math.random() * 0.2;
+                } else {
+                    currentWeight += (Math.random() - 0.5) * 0.2;
+                }
+                
+                weightData.push(currentWeight.toFixed(1));
+            }
+            
+            if (app.charts.weight) {
+                app.charts.weight.destroy();
+            }
+            
+            app.charts.weight = new Chart(weightCtx, {
+                type: 'line',
+                data: {
+                    labels: weightLabels,
+                    datasets: [{
+                        label: 'Weight (kg)',
+                        data: weightData,
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Update calorie history table
+            updateCalorieHistory();
+        }
+        
+        function updateCalorieHistory() {
+            const tableBody = document.getElementById('calorieHistory');
+            tableBody.innerHTML = '';
+            
+            // Get last 7 days of data
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateString = date.toDateString();
+                
+                // Get meals for this day
+                const dayMeals = app.userData.meals.filter(meal => 
+                    new Date(meal.date).toDateString() === dateString
+                );
+                
+                const caloriesConsumed = dayMeals.reduce((total, meal) => total + meal.calories, 0);
+                const caloriesBurned = Math.floor(Math.random() * 300) + 200; // Simulated data
+                const netCalories = caloriesConsumed - caloriesBurned;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date.toLocaleDateString()}</td>
+                    <td>${caloriesConsumed}</td>
+                    <td>${caloriesBurned}</td>
+                    <td style="color: ${netCalories > 0 ? 'var(--warning)' : 'var(--success)'}">${netCalories > 0 ? '+' : ''}${netCalories}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        function resetProgress() {
+            // Show confirmation modal
+            showModal(
+                'Reset Progress',
+                'Are you sure you want to reset all your progress? This action cannot be undone.',
+                () => {
+                    // Reset user data
+                    app.userData.meals = [];
+                    app.userData.calorieHistory = [];
+                    app.userData.weightHistory = [];
+                    
+                    // Save user data
+                    saveUserData();
+                    
+                    // Update UI
+                    updateDashboardStats();
+                    updateMealsTable();
+                    initializeProgressCharts();
+                    
+                    showToast('Progress Reset', 'Your progress has been reset successfully.', 'success');
+                }
+            );
+        }
+        
+        function handleDietChartUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // Create diet chart object
+                    const dietChart = {
+                        id: Date.now(),
+                        name: file.name,
+                        data: event.target.result,
+                        uploadDate: new Date().toISOString(),
+                        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+                    };
+                    
+                    // Add to diet charts array
+                    app.dietCharts.push(dietChart);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('dietCharts', JSON.stringify(app.dietCharts));
+                    
+                    // Update UI
+                    loadDietCharts();
+                    
+                    showToast('Diet Chart Uploaded', 'Your diet chart has been saved for 30 days.', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function loadDietCharts() {
+            // Load diet charts from localStorage
+            const savedCharts = localStorage.getItem('dietCharts');
+            if (savedCharts) {
+                app.dietCharts = JSON.parse(savedCharts);
+            }
+            
+            // Check for expired charts
+            checkDietChartExpiry();
+            
+            // Display diet charts
+            const container = document.getElementById('dietChartContainer');
+            container.innerHTML = '';
+            
+            if (app.dietCharts.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No diet charts uploaded yet</p>';
+                return;
+            }
+            
+            app.dietCharts.forEach(chart => {
+                const chartItem = document.createElement('div');
+                chartItem.className = 'diet-chart-item';
+                
+                const uploadDate = new Date(chart.uploadDate);
+                const expiryDate = new Date(chart.expiryDate);
+                const daysLeft = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                
+                chartItem.innerHTML = `
+                    <div class="diet-chart-info">
+                        <div class="diet-chart-name">${chart.name}</div>
+                        <div class="diet-chart-date">Uploaded: ${uploadDate.toLocaleDateString()}</div>
+                        <div class="diet-chart-expiry">Expires in ${daysLeft} days</div>
+                    </div>
+                    <div class="diet-chart-actions">
+                        <button class="btn btn-secondary" onclick="viewDietChart(${chart.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteDietChart(${chart.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(chartItem);
+            });
+        }
+        
+        function checkDietChartExpiry() {
+            // Check for expired charts and remove them
+            const now = new Date();
+            app.dietCharts = app.dietCharts.filter(chart => {
+                const expiryDate = new Date(chart.expiryDate);
+                return expiryDate > now;
+            });
+            
+            // Save updated list
+            localStorage.setItem('dietCharts', JSON.stringify(app.dietCharts));
+        }
+        
+        function viewDietChart(id) {
+            const chart = app.dietCharts.find(c => c.id === id);
+            if (chart) {
+                // Open the chart in a new tab
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>${chart.name}</title>
+                            <style>
+                                body { margin: 0; padding: 20px; background: #121212; color: white; }
+                                img { max-width: 100%; height: auto; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>${chart.name}</h1>
+                            <img src="${chart.data}" alt="${chart.name}">
+                        </body>
+                    </html>
+                `);
+            }
+        }
+        
+        function deleteDietChart(id) {
+            // Show confirmation modal
+            showModal(
+                'Delete Diet Chart',
+                'Are you sure you want to delete this diet chart?',
+                () => {
+                    // Remove chart from array
+                    app.dietCharts = app.dietCharts.filter(c => c.id !== id);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('dietCharts', JSON.stringify(app.dietCharts));
+                    
+                    // Update UI
+                    loadDietCharts();
+                    
+                    showToast('Diet Chart Deleted', 'The diet chart has been removed.', 'info');
+                }
+            );
+        }
+        
+        function handleContactForm(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+            
+            // In a real app, this would send the message to a server
+            // For demo purposes, we'll just show a success message
+            showToast('Message Sent', 'Your message has been sent successfully. We will get back to you soon!', 'success');
+            
+            // Reset form
+            document.getElementById('contactForm').reset();
+        }
+        
+        function loadLockerInfo() {
+            // Populate form with user data
+            document.getElementById('lockerName').value = app.userData.name || '';
+            document.getElementById('lockerEmail').value = app.userData.email || '';
+            document.getElementById('lockerAge').value = app.userData.age || '';
+            document.getElementById('lockerGender').value = app.userData.gender || '';
+            document.getElementById('lockerWeight').value = app.userData.weight || '';
+            document.getElementById('lockerHeight').value = app.userData.height || '';
+            document.getElementById('lockerBloodGroup').value = app.userData.bloodGroup || '';
+            document.getElementById('lockerAllergies').value = app.userData.allergies || '';
+            document.getElementById('lockerActivity').value = app.userData.activity || '';
+            document.getElementById('lockerGoal').value = app.userData.goal || '';
+        }
+        
+        function saveLockerInfo(e) {
+            e.preventDefault();
+            
+            // Update user data
+            app.userData.name = document.getElementById('lockerName').value;
+            app.userData.email = document.getElementById('lockerEmail').value;
+            app.userData.age = parseInt(document.getElementById('lockerAge').value);
+            app.userData.gender = document.getElementById('lockerGender').value;
+            app.userData.weight = parseFloat(document.getElementById('lockerWeight').value);
+            app.userData.height = parseFloat(document.getElementById('lockerHeight').value);
+            app.userData.bloodGroup = document.getElementById('lockerBloodGroup').value;
+            app.userData.allergies = document.getElementById('lockerAllergies').value;
+            app.userData.activity = document.getElementById('lockerActivity').value;
+            app.userData.goal = document.getElementById('lockerGoal').value;
+            
+            // Save user data
+            saveUserData();
+            
+            // Update dashboard
+            updateDashboardStats();
+            
+            showToast('Information Saved', 'Your personal information has been updated.', 'success');
+        }
+        
+        function generateFitNexusCard() {
+            // Update card with user data
+            document.getElementById('cardName').textContent = app.userData.name || 'Not specified';
+            document.getElementById('cardAge').textContent = app.userData.age || 'Not specified';
+            document.getElementById('cardGender').textContent = app.userData.gender || 'Not specified';
+            document.getElementById('cardBloodGroup').textContent = app.userData.bloodGroup || 'Not specified';
+            document.getElementById('cardWeight').textContent = app.userData.weight ? `${app.userData.weight} kg` : 'Not specified';
+            document.getElementById('cardHeight').textContent = app.userData.height ? `${app.userData.height} cm` : 'Not specified';
+            document.getElementById('cardAllergies').textContent = app.userData.allergies || 'None';
+            document.getElementById('cardActivity').textContent = app.userData.activity || 'Not specified';
+            
+            // Format goal
+            let goalText = 'Not specified';
+            if (app.userData.goal) {
+                if (app.userData.goal.startsWith('lose')) {
+                    goalText = 'Lose Weight';
+                } else if (app.userData.goal.startsWith('gain')) {
+                    goalText = 'Gain Weight';
+                } else if (app.userData.goal === 'maintain') {
+                    goalText = 'Maintain Weight';
+                } else {
+                    goalText = app.userData.goal.replace('-', ' ');
+                }
+            }
+            document.getElementById('cardGoal').textContent = goalText;
+            
+            // Show card
+            document.getElementById('fitnexusCardContainer').style.display = 'block';
+            
+            showToast('Card Generated', 'Your FitNEXUS Card has been generated successfully!', 'success');
+        }
+        
+        function downloadFitNexusCard() {
+            // In a real app, this would generate a PDF
+            // For demo purposes, we'll show a notification
+            showToast('Download Started', 'Your FitNEXUS Card is being downloaded as PDF...', 'info');
+            
+            // Simulate download
+            setTimeout(() => {
+                showToast('Download Complete', 'Your FitNEXUS Card has been downloaded!', 'success');
+            }, 2000);
+        }
+        
+        function handleCoachLogin(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('coachPassword').value;
+            
+            // Check if password matches the coach password
+            if (password !== 'fitwithheet') {
+                showToast('Authentication Failed', 'Invalid password. Access denied.', 'error');
+                return;
+            }
+            
+            // Authenticate coach
+            app.coachAuthenticated = true;
+            
+            // Show client data section
+            document.getElementById('coachLoginCard').style.display = 'none';
+            document.getElementById('clientData').style.display = 'block';
+            
+            // Update navigation
+            document.querySelector('[data-page="coach-portal"]').classList.remove('locked');
+            
+            showToast('Authentication Successful', 'Welcome to the Coach Portal!', 'success');
+        }
+        
+        function handleClientLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('clientEmail').value;
+            
+            // Check if user exists
+            const userData = localStorage.getItem(`userData_${email}`);
+            
+            if (!userData) {
+                showToast('Client Not Found', 'No client found with this email address.', 'error');
+                return;
+            }
+            
+            // Load client data
+            const clientData = JSON.parse(userData);
+            
+            // Display client information
+            document.getElementById('clientName').textContent = clientData.name || email.split('@')[0];
+            document.getElementById('clientBudget').textContent = clientData.dailyBudget || 'Not set';
+            document.getElementById('clientWeight').textContent = clientData.weight ? `${clientData.weight} kg` : 'Not set';
+            
+            // Format goal
+            let goalText = 'Not set';
+            if (clientData.goal) {
+                if (clientData.goal.startsWith('lose')) {
+                    goalText = 'Lose Weight';
+                } else if (clientData.goal.startsWith('gain')) {
+                    goalText = 'Gain Weight';
+                } else if (clientData.goal === 'maintain') {
+                    goalText = 'Maintain Weight';
+                } else {
+                    goalText = clientData.goal.replace('-', ' ');
+                }
+            }
+            document.getElementById('clientGoal').textContent = goalText;
+            
+            // Update client meals table
+            const clientMealsTable = document.getElementById('clientMealsTable');
+            clientMealsTable.innerHTML = '';
+            
+            if (clientData.meals && clientData.meals.length > 0) {
+                clientData.meals.forEach((meal, index) => {
+                    const row = document.createElement('tr');
+                    const date = new Date(meal.date).toLocaleDateString();
+                    
+                    row.innerHTML = `
+                        <td>${date}</td>
+                        <td>Meal ${index + 1}</td>
+                        <td>${meal.calories}</td>
+                        <td>${meal.protein}g</td>
+                        <td>${meal.carbs}g</td>
+                        <td>${meal.fat}g</td>
+                    `;
+                    
+                    clientMealsTable.appendChild(row);
+                });
+            } else {
+                clientMealsTable.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No meals logged</td></tr>';
+            }
+            
+            // Initialize client progress chart
+            const clientProgressCtx = document.getElementById('clientProgressChart').getContext('2d');
+            
+            // Generate sample data for the last 7 days
+            const labels = [];
+            const data = [];
+            const today = new Date();
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                
+                // Generate sample data
+                data.push(Math.floor(Math.random() * 500) + 1500);
+            }
+            
+            if (app.charts.clientProgress) {
+                app.charts.clientProgress.destroy();
+            }
+            
+            app.charts.clientProgress = new Chart(clientProgressCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Calories Consumed',
+                        data: data,
+                        backgroundColor: 'rgba(168, 85, 247, 0.5)',
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Daily Goal',
+                        data: Array(7).fill(clientData.dailyBudget || 2000),
+                        type: 'line',
+                        borderColor: 'rgba(20, 184, 166, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Generate client FitNEXUS Card
+            const clientCard = document.getElementById('clientFitnexusCard');
+            clientCard.innerHTML = `
+                <div class="fitnexus-card">
+                    <div class="fitnexus-card-header">
+                        <div class="fitnexus-card-logo">FitNEXUS</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Health ID</div>
+                    </div>
+                    <div class="fitnexus-card-body">
+                        <div class="fitnexus-card-grid">
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Name</div>
+                                <div class="fitnexus-card-value">${clientData.name || 'Not specified'}</div>
+                            </div>
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Age</div>
+                                <div class="fitnexus-card-value">${clientData.age || 'Not specified'}</div>
+                            </div>
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Gender</div>
+                                <div class="fitnexus-card-value">${clientData.gender || 'Not specified'}</div>
+                            </div>
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Blood Group</div>
+                                <div class="fitnexus-card-value">${clientData.bloodGroup || 'Not specified'}</div>
+                            </div>
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Weight</div>
+                                <div class="fitnexus-card-value">${clientData.weight ? `${clientData.weight} kg` : 'Not specified'}</div>
+                            </div>
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Height</div>
+                                <div class="fitnexus-card-value">${clientData.height ? `${clientData.height} cm` : 'Not specified'}</div>
+                            </div>
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Allergies</div>
+                                <div class="fitnexus-card-value">${clientData.allergies || 'None'}</div>
+                            </div>
+                            <div class="fitnexus-card-item">
+                                <div class="fitnexus-card-label">Activity Level</div>
+                                <div class="fitnexus-card-value">${clientData.activity || 'Not specified'}</div>
+                            </div>
+                        </div>
+                        <div class="mt-20">
+                            <div class="fitnexus-card-label">Health Goal</div>
+                            <div class="fitnexus-card-value">${goalText}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showToast('Client Loaded', `Successfully loaded data for ${clientData.name || email.split('@')[0]}.`, 'success');
+        }
+        
+        function resetClientProgress() {
+            // Show confirmation modal
+            showModal(
+                'Reset Client Progress',
+                'Are you sure you want to reset this client\'s progress? This action cannot be undone.',
+                () => {
+                    const email = document.getElementById('clientEmail').value;
+                    
+                    // Reset user data
+                    const userData = JSON.parse(localStorage.getItem(`userData_${email}`));
+                    userData.meals = [];
+                    userData.calorieHistory = [];
+                    userData.weightHistory = [];
+                    
+                    // Save user data
+                    localStorage.setItem(`userData_${email}`, JSON.stringify(userData));
+                    
+                    // Reload client data
+                    handleClientLogin(new Event('submit'));
+                    
+                    showToast('Client Progress Reset', 'The client\'s progress has been reset successfully.', 'success');
+                }
+            );
+        }
+        
+        function showToast(title, message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set content
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            // Set color based on type
+            if (type === 'success') {
+                toast.style.borderLeftColor = 'var(--success)';
+            } else if (type === 'error') {
+                toast.style.borderLeftColor = 'var(--danger)';
+            } else if (type === 'warning') {
+                toast.style.borderLeftColor = 'var(--warning)';
+            } else {
+                toast.style.borderLeftColor = 'var(--accent-purple)';
+            }
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showModal(title, message, onConfirm) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            // Set content
+            modalTitle.textContent = title;
+            modalBody.innerHTML = `
+                <p>${message}</p>
+                <div class="flex justify-between mt-20">
+                    <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+                    <button class="btn btn-danger" id="modalConfirm">Confirm</button>
+                </div>
+            `;
+            
+            // Set up event listeners
+            document.getElementById('modalCancel').addEventListener('click', closeModal);
+            document.getElementById('modalConfirm').addEventListener('click', () => {
+                onConfirm();
+                closeModal();
+            });
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
